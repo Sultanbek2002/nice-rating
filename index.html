@@ -1,0 +1,834 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Рейтинг учеников — NICE International School</title>
+<meta name="description" content="Рейтинг учеников NICE International School — баллы, места, рост.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<script src="https://code.iconify.design/iconify-icon/2.1.0/iconify-icon.min.js"></script>
+<style>
+  :root{
+    --primary:#17a589;
+    --primary-dark:#0b6f5d;
+    --navy:#0c2440;
+    --mint:#f2f9f6;
+    --mint-deep:#eef7f5;
+    --gold:#FFD700;
+    --silver:#C0C0C0;
+    --bronze:#CD7F32;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:'Manrope',system-ui,-apple-system,sans-serif;
+    background:linear-gradient(135deg,#f2f9f6 0%,#eef7f5 50%,#f5f9ff 100%);
+    min-height:100vh;
+    color:#1f2937;
+    padding-top:28px;
+    padding-bottom:32px;
+  }
+  h1,h2{font-family:'Space Grotesk','Manrope',sans-serif;margin:0}
+  .bg-blob{position:fixed;border-radius:999px;filter:blur(70px);pointer-events:none;z-index:0}
+  .container{max-width:900px;margin:0 auto;padding:0 12px;position:relative;z-index:1}
+
+  /* header */
+  .top-row{display:flex;align-items:center;gap:12px;margin-bottom:16px}
+  .title-wrap{flex:1;min-width:0}
+  .title-wrap h1{font-size:22px;font-weight:800;color:#1f2937;line-height:1.15}
+  .grad-text{background:linear-gradient(90deg,#f59e0b,#17a589);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .title-wrap p{margin:2px 0 0;color:#9ca3af;font-size:11px}
+  #podiumBtn{display:none;align-items:center;gap:6px;padding:8px 12px;border:none;border-radius:12px;font-weight:800;font-size:12px;color:#fff;cursor:pointer;background:linear-gradient(135deg,#FFD700,#f97316);box-shadow:0 4px 15px #FFD70044;transition:transform .15s}
+  #podiumBtn:hover{transform:scale(1.05)}
+  #podiumBtn:active{transform:scale(.95)}
+  #podiumBtn.visible{display:inline-flex}
+  #podiumBtn[disabled]{opacity:.7;cursor:wait}
+  .search-wrap{position:relative;flex-shrink:0}
+  .search-wrap iconify-icon.search-ic{position:absolute;left:10px;top:50%;transform:translateY(-50%);color:#9ca3af;font-size:15px}
+  #searchInput{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:8px 30px 8px 30px;font-size:12px;color:#1f2937;outline:none;width:150px;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+  #searchInput:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(23,165,137,.1)}
+  @media(min-width:768px){#searchInput{width:208px}}
+  #clearSearch{display:none;position:absolute;right:8px;top:50%;transform:translateY(-50%);background:none;border:none;color:#9ca3af;cursor:pointer;padding:0}
+  #clearSearch.visible{display:block}
+
+  /* class pills */
+  .pill-row{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:16px}
+  .pill{padding:5px 14px;border-radius:999px;font-size:11px;font-weight:700;border:1px solid #e5e7eb;background:#fff;color:#6b7280;cursor:pointer;transition:all .15s}
+  .pill:hover{border-color:rgba(23,165,137,.4);color:var(--primary)}
+  .pill.active{background:var(--primary);color:#fff;border-color:var(--primary);box-shadow:0 2px 8px rgba(23,165,137,.2)}
+
+  .state-msg{text-align:center;padding:80px 0;color:#9ca3af;font-size:14px}
+
+  .grid-main{display:grid;grid-template-columns:1fr;gap:16px}
+  @media(min-width:1024px){.grid-main{grid-template-columns:1fr 2fr}}
+
+  .card{background:#fff;border-radius:16px;box-shadow:0 1px 2px rgba(0,0,0,.04);border:1px solid #f3f4f6}
+  .podium-card{padding:16px 16px 8px;margin-bottom:12px}
+  .podium-label{color:#9ca3af;font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:3px;text-align:center;margin:0 0 10px}
+  .top-podium{display:flex;align-items:flex-end;justify-content:center;gap:8px}
+  .tp-col{display:flex;flex-direction:column;align-items:center;gap:2px;width:30%}
+  .tp-medal{font-size:19px}
+  .tp-name{font-weight:800;font-size:11px;text-align:center;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;padding:0 2px;color:#1f2937}
+  .tp-fname{font-weight:500;font-size:10px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%;padding:0 2px;color:#6b7280}
+  .tp-trend{font-size:10px;font-weight:800}
+  .tp-trend.up{color:#10b981}
+  .tp-trend.down{color:#ef4444}
+  .tp-trend.same{color:#d1d5db}
+  .tp-bar{width:100%;border-radius:12px 12px 0 0;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;color:#fff;text-shadow:0 1px 4px rgba(0,0,0,.3)}
+
+  .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+  .stat-card{background:#fff;border-radius:12px;padding:10px;text-align:center;box-shadow:0 1px 2px rgba(0,0,0,.04);border:1px solid #f3f4f6}
+  .stat-ic{width:28px;height:28px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:4px;font-size:16px}
+  .stat-val{font-size:14px;font-weight:800}
+  .stat-lbl{font-size:9px;color:#9ca3af;font-weight:600}
+
+  .table-card{overflow:hidden}
+  .table-head{display:grid;grid-template-columns:28px 1fr 40px 52px 36px;gap:8px;padding:10px 12px;border-bottom:1px solid #f3f4f6;font-size:9px;font-weight:800;color:#9ca3af;text-transform:uppercase;letter-spacing:2px}
+  @media(min-width:1024px){.table-head{grid-template-columns:36px 1fr 52px 64px 44px;padding:12px 20px;font-size:11px}}
+  .table-head .c-class,.table-head .c-trend{text-align:center}
+  .table-head .c-score{text-align:right}
+  .table-body{max-height:calc(100vh - 280px);overflow-y:auto}
+  .score-row{display:grid;grid-template-columns:28px 1fr 40px 52px 36px;gap:8px;padding:9px 12px;align-items:center;border-bottom:1px solid #f9fafb;cursor:pointer;transition:background .15s}
+  @media(min-width:1024px){.score-row{grid-template-columns:36px 1fr 52px 64px 44px;padding:12px 20px;gap:12px}}
+  .score-row:hover{background:#f9fafb}
+  .score-row.changed{background:rgba(16,185,129,.06)}
+  .score-row.open{background:#f9fafb}
+  .r-rank{font-size:13px;font-weight:800;text-align:center}
+  .r-main{min-width:0}
+  .r-name-row{display:flex;align-items:center;gap:5px}
+  .r-name{font-size:13px;font-weight:600;color:#1f2937;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .r-dot{width:6px;height:6px;border-radius:999px;background:#34d399;flex-shrink:0;animation:pulse 1.4s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+  .r-hist-ic{color:#d1d5db;flex-shrink:0}
+  .r-bar-track{position:relative;height:4px;border-radius:999px;background:#f3f4f6;margin-top:4px;overflow:hidden}
+  .r-bar-fill{position:absolute;inset:0 auto 0 0;border-radius:999px;transition:width .6s ease}
+  .r-class{font-size:10px;color:#9ca3af;text-align:center}
+  @media(min-width:1024px){.r-class{font-size:12px}}
+  .r-score{font-size:15px;font-weight:800;text-align:right}
+  @media(min-width:1024px){.r-score{font-size:16px}}
+  .r-trend{display:flex;justify-content:center}
+  .r-trend-wrap{display:flex;flex-direction:column;align-items:center;line-height:1}
+  .r-trend-wrap.up{color:#10b981}
+  .r-trend-wrap.down{color:#ef4444}
+  .r-trend-wrap span{font-size:8px;font-weight:800}
+  @media(min-width:1024px){.r-trend-wrap span{font-size:10px}}
+
+  /* history popover */
+  #historyPopover{position:fixed;z-index:50;background:#fff;border-radius:16px;box-shadow:0 20px 50px rgba(0,0,0,.18);border:1px solid #f3f4f6;padding:10px;text-align:left;width:280px;max-height:280px;overflow-y:auto;display:none}
+  #historyPopover.visible{display:block}
+  .hist-title{font-size:10px;font-weight:800;text-transform:uppercase;letter-spacing:2px;color:#9ca3af;margin:0 0 8px;padding:0 4px}
+  .hist-empty{font-size:12px;color:#9ca3af;text-align:center;padding:12px 4px}
+  .hist-item{display:flex;align-items:flex-start;gap:8px;padding:4px;border-radius:10px}
+  .hist-item:hover{background:#f9fafb}
+  .hist-delta{flex-shrink:0;font-size:11px;font-weight:800;padding:2px 6px;border-radius:8px}
+  .hist-delta.pos{background:#ecfdf5;color:#059669}
+  .hist-delta.neg{background:#fff1f2;color:#f43f5e}
+  .hist-reason{font-size:12px;color:#374151;font-weight:500;line-height:1.3;word-break:break-word}
+  .hist-meta{font-size:10px;color:#9ca3af;margin-top:2px}
+
+  /* podium show modal */
+  #podiumModal{position:fixed;inset:0;z-index:999;display:none;align-items:center;justify-content:center;overflow:hidden;background:radial-gradient(ellipse at center,#0d1b2e 0%,#050a12 100%)}
+  #podiumModal.visible{display:flex}
+  #modalCanvas{position:absolute;inset:0;z-index:2;pointer-events:none}
+  #modalClose{position:absolute;top:16px;right:16px;z-index:30;width:40px;height:40px;border-radius:999px;background:rgba(255,255,255,.1);border:none;color:rgba(255,255,255,.6);display:flex;align-items:center;justify-content:center;cursor:pointer}
+  #modalClose:hover{background:rgba(255,255,255,.2);color:#fff}
+  #modalStage{position:relative;z-index:20;text-align:center;padding:0 24px;width:100%}
+  .ps-eyebrow{color:rgba(255,255,255,.4);font-size:11px;text-transform:uppercase;letter-spacing:4px;margin:0 0 8px}
+  .ps-h2{font-size:32px;font-weight:900;color:#fff;margin:0}
+  @media(min-width:768px){.ps-h2{font-size:40px}}
+  .ps-h2.grad{background:linear-gradient(90deg,#FFD700,#17a589);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+  .ps-trophy{font-size:56px;margin-bottom:16px}
+  .cd-num{font-size:160px;font-weight:900;line-height:1;user-select:none}
+  @media(min-width:768px){.cd-num{font-size:220px}}
+  .ps-bang{font-size:56px;font-weight:900;color:#fff;text-shadow:0 0 40px #fff,0 0 80px rgba(255,255,255,.5)}
+  @media(min-width:768px){.ps-bang{font-size:88px}}
+  .reveal-wrap{max-width:380px;margin:0 auto}
+  .reveal-crown{font-size:48px;margin-bottom:6px;animation:floatCrown 1.5s ease-in-out infinite}
+  @keyframes floatCrown{0%,100%{transform:translateY(0) rotate(-5deg)}50%{transform:translateY(-10px) rotate(5deg)}}
+  .reveal-medal{font-size:56px;margin-bottom:10px}
+  .reveal-label{font-size:13px;font-weight:900;text-transform:uppercase;letter-spacing:4px;margin-bottom:16px}
+  .reveal-box{border-radius:28px;padding:24px;margin:0 auto}
+  .reveal-fname{font-weight:900;color:#fff;line-height:1.1;margin-bottom:4px;font-size:26px}
+  .reveal-fname.first{font-size:32px}
+  @media(min-width:768px){.reveal-fname{font-size:30px}.reveal-fname.first{font-size:38px}}
+  .reveal-lname{color:rgba(255,255,255,.5);font-size:14px;font-weight:500;margin-bottom:4px}
+  .reveal-class{color:rgba(255,255,255,.3);font-size:11px;margin-bottom:16px}
+  .reveal-score{font-weight:900;font-size:40px}
+  .reveal-score.first{font-size:52px}
+  @media(min-width:768px){.reveal-score{font-size:48px}.reveal-score.first{font-size:60px}}
+  .reveal-score small{font-size:14px;opacity:.6;margin-left:4px;font-weight:600}
+  @keyframes pulseGold{0%,100%{box-shadow:0 0 30px #FFD700,0 0 60px rgba(255,215,0,.4)}50%{box-shadow:0 0 60px #FFD700,0 0 100px rgba(255,215,0,.65)}}
+  .done-wrap{width:100%;max-width:640px;margin:0 auto;padding:0 16px}
+  .done-title{text-align:center;color:rgba(255,255,255,.4);font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:4px;margin-bottom:28px}
+  .podium-row{display:flex;align-items:flex-end;justify-content:center;gap:12px}
+  .pc{display:flex;flex-direction:column;align-items:center;gap:3px;width:118px}
+  .pc-crown{font-size:20px;animation:floatCrown 1.5s ease-in-out infinite}
+  .pc-medal{font-size:22px}
+  .pc-name{font-weight:900;color:#fff;font-size:12px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%}
+  .pc-lname{color:rgba(255,255,255,.4);font-size:10px;text-align:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;width:100%}
+  .pc-bar{width:100%;border-radius:16px 16px 0 0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .pc-bar .v{font-weight:900;color:#fff;font-size:17px}
+  .pc-bar .l{color:rgba(255,255,255,.5);font-size:9px}
+  #doneCloseBtn{margin-top:28px;display:block;margin-left:auto;margin-right:auto;padding:12px 32px;border-radius:16px;font-weight:900;font-size:13px;color:#fff;border:none;cursor:pointer;background:linear-gradient(135deg,#FFD700,#f97316);box-shadow:0 8px 30px rgba(255,215,0,.35);transition:transform .15s}
+  #doneCloseBtn:hover{transform:scale(1.05)}
+
+  .fade-in{animation:fadeIn .4s ease both}
+  .pop-in{animation:popIn .3s cubic-bezier(.2,1.6,.4,1) both}
+  @keyframes fadeIn{from{opacity:0}to{opacity:1}}
+  @keyframes popIn{from{opacity:0;transform:scale(.8)}to{opacity:1;transform:scale(1)}}
+</style>
+</head>
+<body>
+
+<div class="bg-blob" style="top:40px;left:20%;width:320px;height:320px;background:#17a589;opacity:.18"></div>
+<div class="bg-blob" style="bottom:60px;right:18%;width:260px;height:260px;background:#FFD700;opacity:.1"></div>
+
+<div class="container">
+  <div class="top-row">
+    <div class="title-wrap">
+      <h1>Рейтинг <span class="grad-text">учеников</span></h1>
+      <p>NICE International School</p>
+    </div>
+    <button id="podiumBtn"><span id="podiumBtnLabel">Подиум</span></button>
+    <div class="search-wrap">
+      <iconify-icon class="search-ic" icon="solar:magnifer-linear"></iconify-icon>
+      <input id="searchInput" placeholder="Поиск..." autocomplete="off">
+      <button id="clearSearch" aria-label="Очистить"><iconify-icon icon="solar:close-circle-bold" width="14"></iconify-icon></button>
+    </div>
+  </div>
+
+  <div id="pillRow" class="pill-row"></div>
+
+  <div id="content"></div>
+</div>
+
+<div id="historyPopover"></div>
+
+<!-- Podium show modal -->
+<div id="podiumModal">
+  <canvas id="modalCanvas"></canvas>
+  <button id="modalClose" aria-label="Закрыть"><iconify-icon icon="solar:close-bold" width="20"></iconify-icon></button>
+  <div id="modalStage"></div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  var API_BASE = "https://nice.kg/go-backend";
+
+  var MEDAL_COLORS = ["#FFD700", "#C0C0C0", "#CD7F32"];
+  var MEDAL_ICONS  = ["🥇", "🥈", "🥉"];
+  var CONFETTI_COLORS = ["#FFD700","#17a589","#ef4444","#3b82f6","#8b5cf6","#f97316","#ec4899","#06b6d4","#a3e635"];
+
+  // ── state ──────────────────────────────────────────────
+  var state = {
+    students: [],
+    classes: [],
+    activeClass: "all",
+    search: "",
+    loading: true,
+    historyCache: {},   // id -> 'loading' | 'error' | entries[]
+    openHistoryId: null,
+    openHistoryRect: null
+  };
+
+  function esc(s){
+    return String(s == null ? "" : s).replace(/[&<>"']/g, function(c){
+      return ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"})[c];
+    });
+  }
+
+  function getTrend(s){
+    if (s.previous_score === 0 || s.score === s.previous_score) return "same";
+    return s.score > s.previous_score ? "up" : "down";
+  }
+
+  function fmtLogDate(iso){
+    try{
+      var d = new Date(iso);
+      return d.toLocaleString("ru-RU", { day: "2-digit", month: "2-digit", year: "numeric", hour: "2-digit", minute: "2-digit" });
+    }catch(e){ return iso; }
+  }
+
+  // ── data fetch ─────────────────────────────────────────
+  function loadData(){
+    Promise.all([
+      fetch(API_BASE + "/api/students").then(function(r){ return r.json(); }),
+      fetch(API_BASE + "/api/students/classes").then(function(r){ return r.json(); })
+    ]).then(function(res){
+      state.students = Array.isArray(res[0]) ? res[0] : [];
+      state.classes = Array.isArray(res[1]) ? res[1] : [];
+    }).catch(function(){
+      state.students = []; state.classes = [];
+    }).finally(function(){
+      state.loading = false;
+      render();
+    });
+  }
+
+  function loadHistory(id){
+    if (state.historyCache[id]) return;
+    state.historyCache[id] = "loading";
+    fetch(API_BASE + "/api/students/" + id + "/score-history")
+      .then(function(r){ return r.ok ? r.json() : Promise.reject(); })
+      .then(function(data){
+        state.historyCache[id] = Array.isArray(data) ? data : [];
+        if (state.openHistoryId === id) renderHistoryPopover();
+      })
+      .catch(function(){
+        state.historyCache[id] = "error";
+        if (state.openHistoryId === id) renderHistoryPopover();
+      });
+  }
+
+  // ── derived lists ──────────────────────────────────────
+  function getByScore(){
+    var list = state.activeClass === "all" ? state.students.slice() : state.students.filter(function(s){ return s.class === state.activeClass; });
+    if (state.search.trim()){
+      var q = state.search.toLowerCase();
+      list = list.filter(function(s){ return s.fio.toLowerCase().indexOf(q) !== -1; });
+    }
+    list.sort(function(a,b){ return b.score - a.score; });
+    return list;
+  }
+
+  function getFiltered(byScore){
+    var list = byScore.slice();
+    list.sort(function(a,b){
+      var ac = a.score !== a.previous_score, bc = b.score !== b.previous_score;
+      if (ac && !bc) return -1;
+      if (!ac && bc) return 1;
+      if (ac && bc) return new Date(b.UpdatedAt).getTime() - new Date(a.UpdatedAt).getTime();
+      return b.score - a.score;
+    });
+    return list;
+  }
+
+  // ── render: pills ──────────────────────────────────────
+  function renderPills(){
+    var pillRow = document.getElementById("pillRow");
+    var all = ["all"].concat(state.classes);
+    pillRow.innerHTML = all.map(function(c){
+      var active = state.activeClass === c ? " active" : "";
+      var label = c === "all" ? "Все" : (esc(c) + " кл.");
+      return '<button class="pill' + active + '" data-class="' + esc(c) + '">' + label + '</button>';
+    }).join("");
+  }
+
+  // ── render: top podium (compact) ────────────────────────
+  function renderTopPodium(students){
+    var order = [1,0,2];
+    var heights = [64,80,56];
+    var html = '<div class="top-podium">';
+    order.forEach(function(idx, pos){
+      var s = students[idx];
+      if (!s) return;
+      var color = MEDAL_COLORS[idx];
+      var trend = getTrend(s);
+      var delta = Math.abs(s.score - s.previous_score);
+      var parts = s.fio.split(" ");
+      var trendHtml = trend !== "same"
+        ? '<span class="tp-trend ' + trend + '">' + (trend === "up" ? "▲" : "▼") + " " + delta + "</span>"
+        : '<span class="tp-trend same">—</span>';
+      html += '<div class="tp-col">' +
+        '<div class="tp-medal">' + MEDAL_ICONS[idx] + '</div>' +
+        '<div class="tp-name">' + esc(parts[1] || parts[0]) + '</div>' +
+        '<div class="tp-fname">' + esc(parts[0]) + '</div>' +
+        trendHtml +
+        '<div class="tp-bar" style="height:' + heights[pos] + 'px;background:linear-gradient(180deg,' + color + '99,' + color + ');border:2px solid ' + color + ';box-shadow:0 4px 12px ' + color + '55">' + s.score + '</div>' +
+      '</div>';
+    });
+    html += '</div>';
+    return html;
+  }
+
+  // ── main render ──────────────────────────────────────────
+  function render(){
+    renderPills();
+
+    var podiumBtn = document.getElementById("podiumBtn");
+    var content = document.getElementById("content");
+
+    if (state.loading){
+      content.innerHTML = '<div class="state-msg">Загрузка...</div>';
+      podiumBtn.classList.remove("visible");
+      return;
+    }
+
+    var byScore = getByScore();
+    var filtered = getFiltered(byScore);
+    var top3 = byScore.slice(0,3);
+    var maxScore = byScore[0] ? byScore[0].score : 1;
+    var avgScore = byScore.length ? Math.round(byScore.reduce(function(a,s){ return a+s.score; }, 0) / byScore.length) : 0;
+
+    podiumBtn.classList.toggle("visible", top3.length >= 3);
+
+    if (filtered.length === 0){
+      content.innerHTML = '<div class="state-msg">' + (state.search ? ("Ничего не найдено по «" + esc(state.search) + "»") : "Ученики не найдены") + '</div>';
+      return;
+    }
+
+    var left = '<div>';
+    if (top3.length >= 2){
+      left += '<div class="card podium-card"><p class="podium-label">Топ 3</p>' + renderTopPodium(top3) + '</div>';
+    }
+    var stats = [
+      { icon: "solar:users-group-rounded-bold-duotone", label: "Учеников", value: byScore.length, color: "#06b6d4", bg: "#ecfeff" },
+      { icon: "solar:cup-bold-duotone", label: "Сред. балл", value: avgScore, color: "#f59e0b", bg: "#fffbeb" },
+      { icon: "solar:star-bold-duotone", label: "Макс.", value: maxScore, color: "#059669", bg: "#ecfdf5" }
+    ];
+    left += '<div class="stats-grid">' + stats.map(function(it){
+      return '<div class="stat-card">' +
+        '<div class="stat-ic" style="background:' + it.bg + ';color:' + it.color + '"><iconify-icon icon="' + it.icon + '" width="18"></iconify-icon></div>' +
+        '<div class="stat-val" style="color:' + it.color + '">' + it.value + '</div>' +
+        '<div class="stat-lbl">' + it.label + '</div>' +
+      '</div>';
+    }).join("") + '</div></div>';
+
+    var right = '<div class="card table-card">' +
+      '<div class="table-head"><span>#</span><span>Ученик</span><span class="c-class">Класс</span><span class="c-score">Баллы</span><span class="c-trend">Рост</span></div>' +
+      '<div class="table-body" id="tableBody">';
+
+    filtered.forEach(function(s){
+      var rank = -1;
+      for (var i=0;i<byScore.length;i++){ if (byScore[i].ID === s.ID){ rank = i+1; break; } }
+      var trend = getTrend(s);
+      var delta = Math.abs(s.score - s.previous_score);
+      var barPct = maxScore ? (s.score / maxScore) * 100 : 0;
+      var medalColor = rank === 1 ? "#FFD700" : rank === 2 ? "#9ca3af" : rank === 3 ? "#CD7F32" : null;
+      var recentlyChanged = trend !== "same";
+      var isHistoryOpen = state.openHistoryId === s.ID;
+
+      var trendHtml = "";
+      if (trend === "up") trendHtml = '<span class="r-trend-wrap up"><iconify-icon icon="solar:arrow-up-bold" width="12"></iconify-icon><span>+' + delta + '</span></span>';
+      else if (trend === "down") trendHtml = '<span class="r-trend-wrap down"><iconify-icon icon="solar:arrow-down-bold" width="12"></iconify-icon><span>' + delta + '</span></span>';
+      else trendHtml = '<iconify-icon icon="solar:minus-bold" width="12" style="color:#d1d5db"></iconify-icon>';
+
+      right += '<div class="score-row' + (recentlyChanged?' changed':'') + (isHistoryOpen?' open':'') + '" data-id="' + s.ID + '">' +
+        '<span class="r-rank" style="color:' + (medalColor || '#d1d5db') + '">' + rank + '</span>' +
+        '<div class="r-main">' +
+          '<div class="r-name-row">' +
+            '<span class="r-name">' + esc(s.fio) + '</span>' +
+            (recentlyChanged ? '<span class="r-dot"></span>' : '') +
+            '<iconify-icon class="r-hist-ic" icon="solar:history-bold" width="11"></iconify-icon>' +
+          '</div>' +
+          '<div class="r-bar-track"><div class="r-bar-fill" style="width:' + barPct + '%;background:' + (medalColor || 'var(--primary)') + '"></div></div>' +
+        '</div>' +
+        '<span class="r-class">' + esc(s.class) + '</span>' +
+        '<span class="r-score" style="color:' + (medalColor || '#374151') + '">' + s.score + '</span>' +
+        '<div class="r-trend">' + trendHtml + '</div>' +
+      '</div>';
+    });
+    right += '</div></div>';
+
+    content.innerHTML = '<div class="grid-main">' + left + right + '</div>';
+
+    if (state.openHistoryId != null) renderHistoryPopover();
+  }
+
+  // ── history popover ────────────────────────────────────
+  function renderHistoryPopover(){
+    var pop = document.getElementById("historyPopover");
+    if (state.openHistoryId == null || !state.openHistoryRect){
+      pop.classList.remove("visible");
+      return;
+    }
+    var rect = state.openHistoryRect;
+    var width = 280;
+    var vw = window.innerWidth, vh = window.innerHeight;
+    var left = Math.min(Math.max(8, rect.left), vw - width - 8);
+    var openUp = rect.bottom + 260 > vh;
+
+    pop.style.left = left + "px";
+    pop.style.width = width + "px";
+    if (openUp){
+      pop.style.top = "";
+      pop.style.bottom = (vh - rect.top + 8) + "px";
+    } else {
+      pop.style.top = (rect.bottom + 8) + "px";
+      pop.style.bottom = "";
+    }
+
+    var entries = state.historyCache[state.openHistoryId];
+    var body = '<p class="hist-title">История баллов</p>';
+    if (entries === "loading") body += '<div class="hist-empty">Загрузка...</div>';
+    else if (entries === "error") body += '<div class="hist-empty" style="color:#f43f5e">Не удалось загрузить</div>';
+    else if (Array.isArray(entries) && entries.length === 0) body += '<div class="hist-empty">Пока нет начислений</div>';
+    else if (Array.isArray(entries)){
+      body += '<div>' + entries.map(function(e){
+        return '<div class="hist-item">' +
+          '<span class="hist-delta ' + (e.delta > 0 ? 'pos' : 'neg') + '">' + (e.delta > 0 ? ('+' + e.delta) : e.delta) + '</span>' +
+          '<div style="min-width:0;flex:1">' +
+            '<p class="hist-reason">' + esc(e.reason || "—") + '</p>' +
+            '<p class="hist-meta">' + esc(e.given_by_name) + ' · ' + fmtLogDate(e.CreatedAt) + '</p>' +
+          '</div>' +
+        '</div>';
+      }).join("") + '</div>';
+    }
+    pop.innerHTML = body;
+    pop.classList.add("visible");
+  }
+
+  function openHistoryFor(id, el){
+    state.openHistoryId = id;
+    state.openHistoryRect = el.getBoundingClientRect();
+    loadHistory(id);
+    renderHistoryPopover();
+    document.querySelectorAll(".score-row").forEach(function(r){
+      r.classList.toggle("open", Number(r.getAttribute("data-id")) === id);
+    });
+  }
+
+  function closeHistory(){
+    state.openHistoryId = null;
+    state.openHistoryRect = null;
+    renderHistoryPopover();
+    document.querySelectorAll(".score-row.open").forEach(function(r){ r.classList.remove("open"); });
+  }
+
+  // ── event delegation ───────────────────────────────────
+  document.getElementById("pillRow").addEventListener("click", function(e){
+    var btn = e.target.closest(".pill");
+    if (!btn) return;
+    state.activeClass = btn.getAttribute("data-class");
+    render();
+  });
+
+  document.getElementById("searchInput").addEventListener("input", function(e){
+    state.search = e.target.value;
+    document.getElementById("clearSearch").classList.toggle("visible", !!state.search);
+    render();
+  });
+  document.getElementById("clearSearch").addEventListener("click", function(){
+    state.search = "";
+    document.getElementById("searchInput").value = "";
+    this.classList.remove("visible");
+    render();
+  });
+
+  document.getElementById("content").addEventListener("mouseenter", function(e){
+    var row = e.target.closest && e.target.closest(".score-row");
+    if (row && window.matchMedia("(hover: hover)").matches) openHistoryFor(Number(row.getAttribute("data-id")), row);
+  }, true);
+  document.getElementById("content").addEventListener("mouseleave", function(e){
+    var row = e.target.closest && e.target.closest(".score-row");
+    if (row && window.matchMedia("(hover: hover)").matches && state.openHistoryId === Number(row.getAttribute("data-id"))) closeHistory();
+  }, true);
+  document.getElementById("content").addEventListener("click", function(e){
+    var row = e.target.closest(".score-row");
+    if (!row) return;
+    var id = Number(row.getAttribute("data-id"));
+    if (state.openHistoryId === id) closeHistory();
+    else openHistoryFor(id, row);
+  });
+  document.addEventListener("click", function(e){
+    if (e.target.closest(".score-row") || e.target.closest("#historyPopover")) return;
+    closeHistory();
+  });
+  window.addEventListener("scroll", function(){ if (state.openHistoryId != null) closeHistory(); }, true);
+  window.addEventListener("resize", function(){ if (state.openHistoryId != null) closeHistory(); });
+
+  // ════════════════════════════════════════════════════════
+  // Podium Show: canvas particles + Web Audio fanfare + phases
+  // ════════════════════════════════════════════════════════
+
+  var canvas = document.getElementById("modalCanvas");
+  var ctx2d = null;
+  var particlePool = [];
+  var rafId = null;
+
+  function resizeCanvas(){
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+  }
+  window.addEventListener("resize", resizeCanvas);
+
+  function burst(x, y, color, count){
+    color = color || "#FFD700"; count = count || 24;
+    for (var i=0; i<count; i++){
+      var angle = (i / count) * Math.PI * 2;
+      var speed = 3 + Math.random() * 5;
+      particlePool.push({
+        x: x, y: y,
+        vx: Math.cos(angle) * speed, vy: Math.sin(angle) * speed,
+        color: Math.random() > 0.4 ? color : CONFETTI_COLORS[Math.floor(Math.random()*CONFETTI_COLORS.length)],
+        size: 4 + Math.random()*5,
+        rotation: Math.random()*Math.PI*2, rotSpeed: (Math.random()-0.5)*0.3,
+        life: 60 + Math.random()*40, maxLife: 100,
+        gravity: 0.12, drag: 0.97, isRect: Math.random() > 0.5
+      });
+    }
+  }
+  function rain(count){
+    count = count || 80;
+    var w = canvas.width || window.innerWidth;
+    for (var i=0;i<count;i++){
+      var life = 180 + Math.random()*120;
+      particlePool.push({
+        x: Math.random()*w, y: -20 - Math.random()*200,
+        vx: (Math.random()-0.5)*2, vy: 3 + Math.random()*4,
+        color: CONFETTI_COLORS[Math.floor(Math.random()*CONFETTI_COLORS.length)],
+        size: 5 + Math.random()*7,
+        rotation: Math.random()*Math.PI*2, rotSpeed: (Math.random()-0.5)*0.2,
+        life: life, maxLife: life,
+        gravity: 0.04, drag: 0.995, isRect: true
+      });
+    }
+  }
+  function tickParticles(){
+    if (!ctx2d) ctx2d = canvas.getContext("2d");
+    ctx2d.clearRect(0,0,canvas.width,canvas.height);
+    particlePool = particlePool.filter(function(p){
+      p.x += p.vx; p.y += p.vy;
+      p.vy += p.gravity; p.vx *= p.drag;
+      p.rotation += p.rotSpeed; p.life--;
+      if (p.life <= 0 || p.y > canvas.height + 40) return false;
+      var alpha = Math.min(1, p.life/30) * (p.life/p.maxLife);
+      ctx2d.save();
+      ctx2d.globalAlpha = Math.max(0, alpha);
+      ctx2d.translate(p.x, p.y);
+      ctx2d.rotate(p.rotation);
+      ctx2d.fillStyle = p.color;
+      if (p.isRect) ctx2d.fillRect(-p.size, -p.size*0.4, p.size*2, p.size*0.8);
+      else { ctx2d.beginPath(); ctx2d.arc(0,0,p.size*0.6,0,Math.PI*2); ctx2d.fill(); }
+      ctx2d.restore();
+      return true;
+    });
+    rafId = requestAnimationFrame(tickParticles);
+  }
+
+  // ── audio engine ───────────────────────────────────────
+  function PodiumAudio(actx){ this.ctx = actx; }
+  PodiumAudio.prototype.note = function(freq, start, dur, type, vol){
+    type = type || "sine"; vol = vol == null ? 0.22 : vol;
+    var c = this.ctx;
+    var osc = c.createOscillator(), gain = c.createGain();
+    osc.type = type; osc.frequency.value = freq;
+    gain.gain.setValueAtTime(0, c.currentTime + start);
+    gain.gain.linearRampToValueAtTime(vol, c.currentTime + start + 0.02);
+    gain.gain.setValueAtTime(vol, c.currentTime + start + dur - 0.04);
+    gain.gain.linearRampToValueAtTime(0, c.currentTime + start + dur);
+    osc.connect(gain); gain.connect(c.destination);
+    osc.start(c.currentTime + start); osc.stop(c.currentTime + start + dur + 0.1);
+  };
+  PodiumAudio.prototype.drum = function(start, vol){
+    vol = vol == null ? 0.3 : vol;
+    var c = this.ctx;
+    var buf = c.createBuffer(1, Math.floor(c.sampleRate*0.12), c.sampleRate);
+    var d = buf.getChannelData(0);
+    for (var i=0;i<d.length;i++) d[i] = (Math.random()*2-1) * Math.pow(1 - i/d.length, 4);
+    var src = c.createBufferSource(); src.buffer = buf;
+    var gain = c.createGain();
+    gain.gain.setValueAtTime(vol, c.currentTime + start);
+    gain.gain.exponentialRampToValueAtTime(0.001, c.currentTime + start + 0.12);
+    src.connect(gain); gain.connect(c.destination);
+    src.start(c.currentTime + start);
+  };
+  PodiumAudio.prototype.fanfare = function(){
+    var self = this;
+    var m = [
+      [261.63, 0.00, 0.12, "square", 0.16],[329.63, 0.13, 0.12, "square", 0.16],
+      [392.00, 0.26, 0.12, "square", 0.18],[523.25, 0.39, 0.12, "square", 0.18],
+      [659.25, 0.52, 0.12, "square", 0.20],[784.00, 0.65, 0.55, "square", 0.22],
+      [659.25, 1.20, 0.10, "square", 0.16],[784.00, 1.30, 0.75, "square", 0.22],
+      [130.81, 0.00, 2.10, "sine", 0.10],[196.00, 0.00, 2.10, "sine", 0.08]
+    ];
+    m.forEach(function(n){ self.note(n[0],n[1],n[2],n[3],n[4]); });
+    this.drum(0.00,0.35); this.drum(0.65,0.45); this.drum(1.30,0.55);
+  };
+  PodiumAudio.prototype.tick = function(pitch){ this.note(pitch,0,0.07,"sine",0.32); this.drum(0,0.18); };
+  PodiumAudio.prototype.blast = function(){
+    var self = this;
+    [523.25,659.25,784.00,1046.50].forEach(function(f,i){ self.note(f, i*0.03, 0.55 - i*0.04, "sawtooth", 0.16 - i*0.01); });
+    this.note(1046.50, 0.14, 0.85, "sine", 0.18);
+    this.drum(0,0.55); this.drum(0.10,0.40); this.drum(0.22,0.30);
+  };
+  PodiumAudio.prototype.reveal = function(place){
+    var self = this;
+    var base = [392.00,523.25,659.25][3-place] || 392;
+    var seq = place === 1
+      ? [[base,0,0.1],[base*1.25,0.1,0.1],[base*1.5,0.2,0.1],[base*2,0.32,0.9]]
+      : [[base,0,0.1],[base*1.25,0.1,0.1],[base*1.5,0.22,0.5]];
+    seq.forEach(function(s){ self.note(s[0],s[1],s[2],"sine",0.22); });
+    this.drum(0,0.38);
+    if (place === 1){
+      this.drum(0.32,0.45); this.drum(0.65,0.55);
+      [261.63,329.63,392.00,523.25,659.25].forEach(function(f,i){ self.note(f, 0.38 + i*0.04, 0.85, "sine", 0.10); });
+    }
+  };
+
+  // ── phase schedule ─────────────────────────────────────
+  var SCHEDULE = [
+    { phase: "intro", delay: 0 },{ phase: "cd3", delay: 1800 },{ phase: "cd2", delay: 2800 },
+    { phase: "cd1", delay: 3800 },{ phase: "bang", delay: 4800 },{ phase: "third", delay: 5700 },
+    { phase: "second", delay: 8700 },{ phase: "first", delay: 11700 },{ phase: "done", delay: 14200 }
+  ];
+  var CD_CFG = {
+    cd3: { num: "3", color: "#ef4444", shadow: "#ef444488" },
+    cd2: { num: "2", color: "#f97316", shadow: "#f9731688" },
+    cd1: { num: "1", color: "#22c55e", shadow: "#22c55e88" }
+  };
+
+  var podiumTimers = [];
+  var fwInterval = null;
+  var currentAudio = null;
+  var currentAudioCtx = null;
+
+  function spawnBursts(count, color){
+    for (var i=0;i<count;i++){
+      (function(i){
+        setTimeout(function(){
+          burst(window.innerWidth*(0.15+Math.random()*0.70), window.innerHeight*(0.10+Math.random()*0.50), color, 20+Math.floor(Math.random()*12));
+        }, i*180);
+      })(i);
+    }
+  }
+
+  function placeRevealHtml(student, place, isFirst){
+    var color = MEDAL_COLORS[place-1];
+    var icon = MEDAL_ICONS[place-1];
+    var label = ["1-е место","2-е место","3-е место"][place-1];
+    var parts = student.fio.split(" ");
+    return '<div class="reveal-wrap pop-in">' +
+      (isFirst ? '<div class="reveal-crown">👑</div>' : '') +
+      '<div class="reveal-medal">' + icon + '</div>' +
+      '<div class="reveal-label" style="color:' + color + '">' + label + '</div>' +
+      '<div class="reveal-box" style="background:linear-gradient(145deg,' + color + '1a,' + color + '40);border:2px solid ' + color + ';box-shadow:' + (isFirst ? ('0 0 60px ' + color + '66, 0 20px 60px rgba(0,0,0,.4)') : ('0 0 30px ' + color + '44')) + (isFirst ? ';animation:pulseGold 2s ease-in-out infinite' : '') + '">' +
+        '<div class="reveal-fname' + (isFirst?' first':'') + '">' + esc(parts[1] || parts[0]) + '</div>' +
+        '<div class="reveal-lname">' + esc(parts[0]) + '</div>' +
+        '<div class="reveal-class">' + esc(student.class) + ' класс</div>' +
+        '<div class="reveal-score' + (isFirst?' first':'') + '" style="color:' + color + ';text-shadow:0 0 30px ' + color + '">' + student.score + '<small>балл</small></div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function podiumCardHtml(student, place, heightPx, isFirst){
+    var color = MEDAL_COLORS[place-1];
+    var parts = student.fio.split(" ");
+    return '<div class="pc">' +
+      (isFirst ? '<div class="pc-crown">👑</div>' : '') +
+      '<div class="pc-medal">' + MEDAL_ICONS[place-1] + '</div>' +
+      '<div class="pc-name">' + esc(parts[1] || parts[0]) + '</div>' +
+      '<div class="pc-lname">' + esc(parts[0]) + '</div>' +
+      '<div class="pc-bar" style="height:' + heightPx + 'px;background:linear-gradient(180deg,' + color + '66,' + color + 'cc);border:2px solid ' + color + ';box-shadow:0 0 20px ' + color + '55">' +
+        '<div class="v">' + student.score + '</div><div class="l">баллов</div>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function setStage(html){
+    document.getElementById("modalStage").innerHTML = html;
+  }
+
+  function runPodiumShow(top3){
+    var stage = document.getElementById("modalStage");
+    resizeCanvas();
+    document.getElementById("podiumModal").classList.add("visible");
+
+    currentAudio.fanfare();
+    rain(60);
+    if (!rafId) tickParticles();
+
+    SCHEDULE.forEach(function(entry){
+      var t = setTimeout(function(){
+        var p = entry.phase;
+        if (p === "intro"){
+          setStage('<div class="pop-in"><div class="ps-trophy">🏆</div><p class="ps-eyebrow">NICE International School</p><h2 class="ps-h2">Объявляем</h2><h2 class="ps-h2 grad">победителей!</h2></div>');
+        }
+        if (p === "cd3" || p === "cd2" || p === "cd1"){
+          var cfg = CD_CFG[p];
+          setStage('<div class="pop-in"><div class="cd-num" style="color:' + cfg.color + ';text-shadow:0 0 80px ' + cfg.shadow + ',0 0 160px ' + cfg.shadow + '">' + cfg.num + '</div></div>');
+        }
+        if (p === "cd3"){ currentAudio.tick(600); burst(window.innerWidth/2, window.innerHeight/2, "#ef4444", 10); }
+        if (p === "cd2"){ currentAudio.tick(700); burst(window.innerWidth/2, window.innerHeight/2, "#f97316", 10); }
+        if (p === "cd1"){ currentAudio.tick(900); burst(window.innerWidth/2, window.innerHeight/2, "#22c55e", 10); }
+        if (p === "bang"){
+          setStage('<div class="pop-in"><div class="ps-bang">🎉 СТАРТ!</div></div>');
+          currentAudio.blast(); rain(100); spawnBursts(5);
+        }
+        if (p === "third"){ setStage(placeRevealHtml(top3[2], 3, false)); currentAudio.reveal(3); rain(60); spawnBursts(3, "#CD7F32"); }
+        if (p === "second"){ setStage(placeRevealHtml(top3[1], 2, false)); currentAudio.reveal(2); rain(80); spawnBursts(4, "#C0C0C0"); }
+        if (p === "first"){ setStage(placeRevealHtml(top3[0], 1, true)); currentAudio.reveal(1); rain(150); spawnBursts(8, "#FFD700"); }
+        if (p === "done"){
+          rain(120); spawnBursts(6);
+          setStage(
+            '<div class="done-wrap fade-in">' +
+              '<h2 class="done-title">Поздравляем победителей!</h2>' +
+              '<div class="podium-row">' +
+                podiumCardHtml(top3[1], 2, 112, false) +
+                podiumCardHtml(top3[0], 1, 160, true) +
+                podiumCardHtml(top3[2], 3, 80, false) +
+              '</div>' +
+              '<button id="doneCloseBtn">Закрыть</button>' +
+            '</div>'
+          );
+          document.getElementById("doneCloseBtn").addEventListener("click", closePodiumShow);
+        }
+      }, entry.delay);
+      podiumTimers.push(t);
+    });
+
+    var startFw = SCHEDULE.filter(function(s){ return s.phase === "first"; })[0].delay;
+    var stopFw = SCHEDULE.filter(function(s){ return s.phase === "done"; })[0].delay + 3000;
+    var fwStartTimer = setTimeout(function(){
+      fwInterval = setInterval(function(){
+        burst(window.innerWidth*(0.1+Math.random()*0.8), window.innerHeight*(0.05+Math.random()*0.55), CONFETTI_COLORS[Math.floor(Math.random()*CONFETTI_COLORS.length)], 18);
+      }, 350);
+    }, startFw);
+    var fwStopTimer = setTimeout(function(){ if (fwInterval){ clearInterval(fwInterval); fwInterval = null; } }, stopFw);
+    podiumTimers.push(fwStartTimer, fwStopTimer);
+  }
+
+  function closePodiumShow(){
+    podiumTimers.forEach(clearTimeout);
+    podiumTimers = [];
+    if (fwInterval){ clearInterval(fwInterval); fwInterval = null; }
+    document.getElementById("podiumModal").classList.remove("visible");
+    if (currentAudioCtx){ currentAudioCtx.close().catch(function(){}); currentAudioCtx = null; }
+    currentAudio = null;
+    particlePool = [];
+    if (rafId){ cancelAnimationFrame(rafId); rafId = null; }
+    if (ctx2d) ctx2d.clearRect(0,0,canvas.width,canvas.height);
+  }
+
+  document.getElementById("modalClose").addEventListener("click", closePodiumShow);
+
+  document.getElementById("podiumBtn").addEventListener("click", function(){
+    var btn = this;
+    var byScore = getByScore();
+    var top3 = byScore.slice(0,3);
+    if (top3.length < 3) return;
+
+    btn.setAttribute("disabled", "disabled");
+    document.getElementById("podiumBtnLabel").textContent = "Подготовка...";
+
+    var AC = window.AudioContext || window.webkitAudioContext;
+    var actx = new AC();
+    var ready = actx.state === "suspended" ? actx.resume() : Promise.resolve();
+    ready.then(function(){
+      var osc = actx.createOscillator(), gain = actx.createGain();
+      gain.gain.value = 0;
+      osc.connect(gain); gain.connect(actx.destination);
+      osc.start(); osc.stop(actx.currentTime + 0.05);
+      return new Promise(function(res){ setTimeout(res, 400); });
+    }).then(function(){
+      currentAudioCtx = actx;
+      currentAudio = new PodiumAudio(actx);
+      btn.removeAttribute("disabled");
+      document.getElementById("podiumBtnLabel").textContent = "Подиум";
+      runPodiumShow(top3);
+    });
+  });
+
+  // ── init ───────────────────────────────────────────────
+  resizeCanvas();
+  render();
+  loadData();
+
+})();
+</script>
+</body>
+</html>
