@@ -223,6 +223,11 @@
   var MEDAL_ICONS  = ["🥇", "🥈", "🥉"];
   var CONFETTI_COLORS = ["#FFD700","#17a589","#ef4444","#3b82f6","#8b5cf6","#f97316","#ec4899","#06b6d4","#a3e635"];
 
+  // Экран-витрина: сам крутит классы по очереди и сам подтягивает свежие баллы —
+  // без этого страница годится только для ручного просмотра на одном устройстве.
+  var AUTO_REFRESH_MS = 60000; // обновление данных с сервера
+  var AUTO_CYCLE_MS = 6000;    // сколько секунд держать каждую вкладку класса
+
   // ── state ──────────────────────────────────────────────
   var state = {
     students: [],
@@ -254,7 +259,10 @@
   }
 
   // ── data fetch ─────────────────────────────────────────
-  function loadData(){
+  // isInitial=true only on first load — shows "Загрузка..." and clears data on
+  // failure. Background refreshes (every AUTO_REFRESH_MS) update silently and
+  // keep whatever was on screen if a request happens to fail.
+  function loadData(isInitial){
     Promise.all([
       fetch(API_BASE + "/api/students").then(function(r){ return r.json(); }),
       fetch(API_BASE + "/api/students/classes").then(function(r){ return r.json(); })
@@ -262,9 +270,9 @@
       state.students = Array.isArray(res[0]) ? res[0] : [];
       state.classes = Array.isArray(res[1]) ? res[1] : [];
     }).catch(function(){
-      state.students = []; state.classes = [];
+      if (isInitial){ state.students = []; state.classes = []; }
     }).finally(function(){
-      state.loading = false;
+      if (isInitial) state.loading = false;
       render();
     });
   }
@@ -489,11 +497,41 @@
     document.querySelectorAll(".score-row.open").forEach(function(r){ r.classList.remove("open"); });
   }
 
+  // ── auto-cycle through class tabs (kiosk/display mode) ──
+  var cycleTimer = null;
+  var cycleIndex = 0;
+
+  function classList(){ return ["all"].concat(state.classes); }
+
+  function syncCycleIndex(){
+    var idx = classList().indexOf(state.activeClass);
+    cycleIndex = idx === -1 ? 0 : idx;
+  }
+
+  function startAutoCycle(){
+    stopAutoCycle();
+    cycleTimer = setInterval(function(){
+      // не мешаем, если кто-то сейчас ищет конкретного ученика
+      if (state.search.trim()) return;
+      var list = classList();
+      if (list.length <= 1) return;
+      cycleIndex = (cycleIndex + 1) % list.length;
+      state.activeClass = list[cycleIndex];
+      closeHistory();
+      render();
+    }, AUTO_CYCLE_MS);
+  }
+  function stopAutoCycle(){
+    if (cycleTimer){ clearInterval(cycleTimer); cycleTimer = null; }
+  }
+
   // ── event delegation ───────────────────────────────────
   document.getElementById("pillRow").addEventListener("click", function(e){
     var btn = e.target.closest(".pill");
     if (!btn) return;
     state.activeClass = btn.getAttribute("data-class");
+    closeHistory();
+    syncCycleIndex();
     render();
   });
 
@@ -826,7 +864,9 @@
   // ── init ───────────────────────────────────────────────
   resizeCanvas();
   render();
-  loadData();
+  loadData(true);
+  setInterval(function(){ loadData(false); }, AUTO_REFRESH_MS);
+  startAutoCycle();
 
 })();
 </script>
