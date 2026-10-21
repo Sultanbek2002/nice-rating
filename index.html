@@ -251,6 +251,13 @@
     return s.score > s.previous_score ? "up" : "down";
   }
 
+  // Scores are float64 with 0.1 precision — plain subtraction (1.3 - 1.0)
+  // produces floating-point artifacts like 0.29999999999999982, so round
+  // before display.
+  function getDelta(s){
+    return Math.round(Math.abs(s.score - s.previous_score) * 10) / 10;
+  }
+
   function fmtLogDate(iso){
     try{
       var d = new Date(iso);
@@ -336,7 +343,7 @@
       if (!s) return;
       var color = MEDAL_COLORS[idx];
       var trend = getTrend(s);
-      var delta = Math.abs(s.score - s.previous_score);
+      var delta = getDelta(s);
       var parts = s.fio.split(" ");
       var trendHtml = trend !== "same"
         ? '<span class="tp-trend ' + trend + '">' + (trend === "up" ? "▲" : "▼") + " " + delta + "</span>"
@@ -404,7 +411,7 @@
       var rank = -1;
       for (var i=0;i<byScore.length;i++){ if (byScore[i].ID === s.ID){ rank = i+1; break; } }
       var trend = getTrend(s);
-      var delta = Math.abs(s.score - s.previous_score);
+      var delta = getDelta(s);
       var barPct = maxScore ? (s.score / maxScore) * 100 : 0;
       var medalColor = rank === 1 ? "#FFD700" : rank === 2 ? "#9ca3af" : rank === 3 ? "#CD7F32" : null;
       var recentlyChanged = trend !== "same";
